@@ -1,0 +1,21 @@
+{
+  "name": "kiki",
+  "version": "0.1.0",
+  "description": "A small, clojure inspired, lisp",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "lisp"
+  ],
+  "author": "Kostas Georgiadis",
+  "license": "MIT",
+  "dependencies": {
+    "moo": "^0.5.0",
+    "nearley": "^2.16.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.0.2"
+  }
+}
