@@ -1,7 +1,7 @@
 const nearley = require("nearley");
 const grammar = require("./grammar.js");
 
-const { Cons, Bool, Numb, Symb, NIL } = require("./types");
+const { Cons, Bool, Fn, Num, Symb, NIL } = require("./types");
 
 // Create a Parser object from our grammar.
 // parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
@@ -25,6 +25,52 @@ function read(text) {
 // parser.feed("a");
 // parser.feed("((a))");
 
+globals = {}
+
+class Env {
+	constructor() {
+		this._env = NIL;
+	}
+
+	lookup(symb) {
+		let curr = this._env;
+		while (curr != NIL) {
+			let [[s, v]] = curr;
+			if (symb == s) {
+				return v;
+			}
+			curr = curr.cdr();
+		}
+		
+		let v = globals[symb];
+		if (v) {
+			return v;
+		}
+		throw new Error("Unknown symbol " + symb);
+	}
+
+	bind(symb, val) {
+		this._env = new Cons(new Cons(symb, val), this._env);
+	}
+
+	static bindGlobal(symb, val) {
+		globals[symb] = val;
+	}
+}
+
+const global_fns = {
+	"inc": (env, args) => new Num(args.car().numVal() + 1)
+};
+
+function resetGlobals() {
+	globals = {};
+	for (let [key, value] of Object.entries(global_fns)) {
+		globals[Symb.intern(key)] = Fn.builtin(key, value);
+	}
+}
+
+resetGlobals();
+
 function truthy(sexpr) {
 	if (sexpr == NIL) {
 		return false;
@@ -35,8 +81,15 @@ function truthy(sexpr) {
 	}
 }
 
-function evalApply(env, f, args) {
+function evalArgs(env, args) {
+	if (args == NIL) {
+		return NIL;
+	}
+	return new Cons(_eval(env, args.car()), evalArgs(env, args.cdr()));
+}
 
+function evalApply(env, f, args) {
+	return f.invoke(env, evalArgs(env, args));
 }
 
 function evalSexpr(env, symb, form) {
@@ -46,7 +99,7 @@ function evalSexpr(env, symb, form) {
 		case "if": 
 			let [pred, ifc, elsec] = form;
 			return truthy(_eval(env, pred)) ? _eval(env, ifc) : _eval(env, elsec);
-		default: evalApply(env, _eval(env, symb), form);
+		default: return evalApply(env, _eval(env, symb), form);
 	}
 }
 
@@ -57,7 +110,7 @@ function _eval(env, form) {
 		}
 
 	} else if (form instanceof Symb) {
-
+		return env.lookup(form);
 	} else {
 		return form;
 	}
@@ -83,5 +136,6 @@ function _eval(env, form) {
 
 module.exports = {
 	read,
-	_eval
+	_eval,
+	Env
 }

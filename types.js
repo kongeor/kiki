@@ -3,10 +3,33 @@ class Num {
 		this.n = n;
 	}
 
+	numVal() {
+		return this.n
+	}
+
 	toStr() {
 		return this.n;
 	}
 }
+
+class SymbolRegistry {
+	constructor() {
+		this._registry = {};
+	}
+	
+	intern(str) {
+		let s = this._registry[str];
+		if (s) {
+			return s;
+		} else {
+			let symb = new Symb(str);
+			this._registry[str] = symb;
+			return symb;
+		}
+	}
+}
+
+symbol_registry = new SymbolRegistry();
 
 class Symb {
 	constructor(s) {
@@ -15,6 +38,10 @@ class Symb {
 
 	name() {
 		return this.s;
+	}
+
+	static intern(str) {
+		return symbol_registry.intern(str);
 	}
 
 	toStr() {
@@ -48,6 +75,31 @@ class Nil {
 }
 
 const NIL = new Nil("nil");
+
+class Fn {
+
+	constructor(name, fn, idx) {
+		this._name = name;
+		this._fn = fn;
+		this._idx = idx;
+	}
+
+	invoke(env, args) {
+		return this._fn(env, args);
+	}
+
+	static anonymous() {
+
+	}
+
+	static builtin(name, fn) {
+		return new Fn(name, fn);
+	}
+
+	toStr() {
+		return `<Builtin: ${this._name}>`;
+	}
+}
 
 class Cons {
 	constructor(car, cdr) {
@@ -104,7 +156,7 @@ function parseSymbol(arr) {
 		case "true": return T;
 		case "false": return F;
 		case "nil": return NIL;
-		default: return new Symb(s);
+		default: return Symb.intern(s);
 	}
 }
 
@@ -140,6 +192,7 @@ module.exports = {
 	Symb,
 	Cons,
 	Bool,
+	Fn,
 	NIL,
 	parseSymbol,
 	parseList,
