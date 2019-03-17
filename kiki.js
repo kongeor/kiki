@@ -28,14 +28,15 @@ function read(text) {
 globals = {}
 
 class Env {
-	constructor() {
-		this._env = NIL;
+	constructor(cons = NIL) {
+		this._env = cons;
 	}
 
 	lookup(symb) {
 		let curr = this._env;
 		while (curr != NIL) {
-			let [[s, v]] = curr;
+			let s = curr.car().car();
+			let v = curr.car().cdr();
 			if (symb == s) {
 				return v;
 			}
@@ -50,7 +51,7 @@ class Env {
 	}
 
 	bind(symb, val) {
-		this._env = new Cons(new Cons(symb, val), this._env);
+		return new Env(new Cons(new Cons(symb, val), this._env));
 	}
 
 	static bindGlobal(symb, val) {
@@ -61,7 +62,8 @@ class Env {
 
 const global_fns = {
 	"inc": (env, args) => new Num(args.car().numVal() + 1),
-	"dec": (env, args) => new Num(args.car().numVal() - 1)
+	"dec": (env, args) => new Num(args.car().numVal() - 1),
+	"+": (env, args) => new Num(args.car().numVal() + args.cdr().car().numVal())
 };
 
 function resetGlobals() {
@@ -109,9 +111,37 @@ function evalSexpr(env, symb, form) {
 			return result;
 		case "def":
 			let [b, v] = form;
-			return Env.bindGlobal(b, v);
+			return Env.bindGlobal(b, _eval(env, v));
 		case "quote":
 			return form.car()
+		case "fn":
+			let fn = (_, args) => {
+				let params = form.car();
+
+				let lambdaEnv = env;
+
+				let p = params;
+				let a = args;
+				while (p != NIL) {
+					let symb = p.car();
+					lambdaEnv = lambdaEnv.bind(symb, a.car());
+
+					p = params.cdr();
+					a = args.cdr();
+				}
+
+				let body = form.cdr();
+				let b = body;
+				let r = NIL;
+
+				while (b != NIL) {
+					r = _eval(lambdaEnv, b.car());
+					b = b.cdr();
+				}
+
+				return r;
+			}
+			return Fn.lambda(fn);
 		default: return evalApply(env, _eval(env, symb), form);
 	}
 }
@@ -121,7 +151,7 @@ function _eval(env, form) {
 		if (form.car() instanceof Symb) {
 			return evalSexpr(env, form.car(), form.cdr());
 		}
-
+		return evalApply(env, _eval(env, form.car()), form.cdr());
 	} else if (form instanceof Symb) {
 		return env.lookup(form);
 	} else {
@@ -150,5 +180,6 @@ function _eval(env, form) {
 module.exports = {
 	read,
 	_eval,
-	Env
+	Env,
+	resetGlobals
 }

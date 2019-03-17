@@ -7,9 +7,11 @@ const moo = require("moo");
 const lexer = moo.compile({
   ws:     /[ \t]+/,
   number: /[0-9]+/,
-  word: /[a-z]+/,
+  word: /[a-z\+]+/,
   oparen: "(",
-  cparen: ")"
+  cparen: ")",
+  obracket: "[",
+  cbracket: "]",
 });
 
 const types = require("./types.js");
@@ -26,4 +28,6 @@ atom -> symbol
 	  | number
 symbol -> %word {% types.parseSymbol %}
 number -> %number {% types.parseNumber %}
-list -> %oparen (%ws):* expr (%ws expr):* (%ws):* %cparen {% types.parseList %}
+open -> %oparen | %obracket
+close -> %cparen | %cbracket
+list -> open (%ws):* expr (%ws expr):* (%ws):* close {% types.parseList %}

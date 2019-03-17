@@ -9,9 +9,11 @@ const moo = require("moo");
 const lexer = moo.compile({
   ws:     /[ \t]+/,
   number: /[0-9]+/,
-  word: /[a-z]+/,
+  word: /[a-z\+]+/,
   oparen: "(",
-  cparen: ")"
+  cparen: ")",
+  obracket: "[",
+  cbracket: "]",
 });
 
 const types = require("./types.js");
@@ -33,6 +35,10 @@ var grammar = {
     {"name": "atom", "symbols": ["number"]},
     {"name": "symbol", "symbols": [(lexer.has("word") ? {type: "word"} : word)], "postprocess": types.parseSymbol},
     {"name": "number", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": types.parseNumber},
+    {"name": "open", "symbols": [(lexer.has("oparen") ? {type: "oparen"} : oparen)]},
+    {"name": "open", "symbols": [(lexer.has("obracket") ? {type: "obracket"} : obracket)]},
+    {"name": "close", "symbols": [(lexer.has("cparen") ? {type: "cparen"} : cparen)]},
+    {"name": "close", "symbols": [(lexer.has("cbracket") ? {type: "cbracket"} : cbracket)]},
     {"name": "list$ebnf$1", "symbols": []},
     {"name": "list$ebnf$1$subexpression$1", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)]},
     {"name": "list$ebnf$1", "symbols": ["list$ebnf$1", "list$ebnf$1$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
@@ -42,7 +48,7 @@ var grammar = {
     {"name": "list$ebnf$3", "symbols": []},
     {"name": "list$ebnf$3$subexpression$1", "symbols": [(lexer.has("ws") ? {type: "ws"} : ws)]},
     {"name": "list$ebnf$3", "symbols": ["list$ebnf$3", "list$ebnf$3$subexpression$1"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "list", "symbols": [(lexer.has("oparen") ? {type: "oparen"} : oparen), "list$ebnf$1", "expr", "list$ebnf$2", "list$ebnf$3", (lexer.has("cparen") ? {type: "cparen"} : cparen)], "postprocess": types.parseList}
+    {"name": "list", "symbols": ["open", "list$ebnf$1", "expr", "list$ebnf$2", "list$ebnf$3", "close"], "postprocess": types.parseList}
 ]
   , ParserStart: "main"
 }

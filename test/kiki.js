@@ -11,8 +11,9 @@ describe("truth", () => {
 
 	let env; 
 
-	before(() => {
+	beforeEach(() => {
 		env = new k.Env();
+		k.resetGlobals();
 	});
 
 	it("if truthy", () => {
@@ -29,7 +30,7 @@ describe("truth", () => {
 	it("def", () => {
 		assert.equal(res(env, "(def a 1)"), "1");
 		assert.equal(res(env, "(do (def a 2) a)"), 2);
-		// assert.equal(res(env, "(do (def inc (fn [x] (+ x 5))) (inc 0))"), 5);
+		assert.equal(res(env, "(do (def a 1) (def inc (fn [x] (+ x 5))) (inc 0))"), 5);
 	});
 
 	it("quote", () => {
@@ -39,6 +40,10 @@ describe("truth", () => {
 	it("should resolve globals", () => {
 		assert.equal(res(env, "(inc 0)"), 1);
 		assert.equal(res(env, "(inc (inc 0))"), 2);
+	})
+
+	it("lambda", () => {
+		assert.equal(res(env, "((fn [x] x) 1)"), "1");
 	})
 
 })
