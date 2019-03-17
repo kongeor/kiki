@@ -7,9 +7,9 @@ function id(x) { return x[0]; }
 const moo = require("moo");
 
 const lexer = moo.compile({
-  ws:     /[ \t]+/,
-  number: /[0-9]+/,
-  word: /[a-z\+]+/,
+  ws:     {match: /\s+/, lineBreaks: true},
+  number: /0|[1-9][0-9]*/,
+  word: /[a-z\+\=\*]+/,
   oparen: "(",
   cparen: ")",
   obracket: "[",

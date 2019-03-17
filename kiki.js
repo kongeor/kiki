@@ -67,7 +67,9 @@ class Env {
 const global_fns = {
 	"inc": (env, args) => new Num(args.car().numVal() + 1),
 	"dec": (env, args) => new Num(args.car().numVal() - 1),
-	"+": (env, args) => new Num(args.car().numVal() + args.cdr().car().numVal())
+	"+": (env, args) => new Num(args.car().numVal() + args.cdr().car().numVal()),
+	"*": (env, args) => new Num(args.car().numVal() * args.cdr().car().numVal()),
+	"=": (env, args) => new Bool(args.car().eq(args.cdr().car()))
 };
 
 function resetGlobals() {

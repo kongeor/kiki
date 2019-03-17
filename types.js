@@ -1,14 +1,18 @@
 class Num {
 	constructor(n) {
-		this.n = n;
+		this._n = n;
 	}
 
 	numVal() {
-		return this.n
+		return this._n
 	}
 
-	toStr() {
-		return this.n;
+	eq(other) {
+		return (other instanceof Num) && this._n == other._n;
+	}
+
+	toString() {
+		return this._n;
 	}
 }
 
@@ -33,33 +37,41 @@ symbol_registry = new SymbolRegistry();
 
 class Symb {
 	constructor(s) {
-		this.s = s;
+		this._s = s;
 	}
 
 	name() {
-		return this.s;
+		return this._s;
 	}
 
 	static intern(str) {
 		return symbol_registry.intern(str);
 	}
 
+	eq(other) {
+		return (other instanceof Symb) && this._s === other._s;
+	}
+
 	toString() {
-		return this.s;
+		return this._s;
 	}
 }
 
 class Bool {
 	constructor(b) {
-		this.b = b;
+		this._b = b;
 	}
 
 	boolVal() {
-		return this.b;
+		return this._b;
 	}
 
-	toStr() {
-		return this.b;
+	eq(other) {
+		return (other instanceof Bool) && this._b === other._b;
+	}
+
+	toString() {
+		return this._b;
 	}
 }
 
@@ -71,7 +83,11 @@ class Nil {
 
 	*[Symbol.iterator]() {}
 
-	toStr() {
+	eq(other) {
+		return other instanceof Nil;
+	}
+
+	toString() {
 		return "nil";
 	}
 }
@@ -100,9 +116,13 @@ class Fn {
 		return new Fn(name, fn);
 	}
 
-	toStr() {
-		if (this_id) {
-			return `<Lambda: ${this._name}>`;
+	eq(other) {
+		return false;
+	}
+
+	toString() {
+		if (this._id) {
+			return `<Lambda: ${this._id}>`;
 		}
 		return `<Builtin: ${this._name}>`;
 	}
@@ -143,16 +163,24 @@ class Cons {
 		}
 	}
 
-	_toStr() {
-		if (this._cdr instanceof Cons) {
-			return this._car.toStr() + " " + this._cdr._toStr();
-		} else if (this._cdr == NIL) {
-			return this._car.toStr();
+	eq(other) {
+		if (other instanceof Cons) {
+			return this._car.eq(other.car())
+				&& this._cdr.eq(other.cdr());
 		}
-		return this._car.toStr() + " . " + this._cdr.toStr();
+		return false;
 	}
 
-	toStr() {
+	_toStr() {
+		if (this._cdr instanceof Cons) {
+			return this._car.toString() + " " + this._cdr._toStr();
+		} else if (this._cdr == NIL) {
+			return this._car.toString();
+		}
+		return this._car.toString() + " . " + this._cdr.toString();
+	}
+
+	toString() {
 		return "( " + this._toStr() + " )";
 	}
 }

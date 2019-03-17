@@ -4,7 +4,11 @@ var assert = require('assert');
 
 // read eval to string
 function res(env, text) {
-	return (k._eval(env, k.read(text)).toStr());
+	return (k._eval(env, k.read(text)).toString());
+}
+
+function reb(env, text) {
+	return (k._eval(env, k.read(text)).boolVal());
 }
 
 describe("truth", () => {
@@ -60,6 +64,34 @@ describe("truth", () => {
 	it("let", () => {
 		assert.equal(res(env, "(let [a 1 b 2] (+ a b))"), "3");
 		assert.equal(res(env, "(let [a 1 b (+ a 2) c (+ a b)] c)"), "4");
+	})
+
+	describe("builtins", () => {
+		it("eq", () => {
+			assert.equal(reb(env, "(= 0 0)"), true);
+			assert.equal(reb(env, "(= 0 1)"), false);
+			assert.equal(reb(env, "(= (quote (1 2 3)) (quote (1 2 3)))"), true);
+			assert.equal(reb(env, "(= (quote (1 2 3)) (quote (1 2 4)))"), false);
+		})
+	})
+
+	describe("programs", () => {
+		it.skip("ignore whitespace", () => {
+			assert.equal(res(env, "  (+ 1 2)   "), 3);
+		})
+		it("factorial multiline", () => {
+			assert.equal(res(env, `(do
+				(def fact 
+				  (fn [n]
+					(if (= n 0)
+						1
+						(* n (fact (dec n))))))
+				(fact 5))`), 120);
+		})
+
+		it("factorial", () => {
+			assert.equal(res(env, "(do (def fact (fn [n] (if (= n 0) 1 (* n (fact (dec n)))))) (fact 5))"), 120);
+		})
 	})
 
 
