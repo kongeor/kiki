@@ -43,15 +43,19 @@ class Env {
 			curr = curr.cdr();
 		}
 		
+		return Env.lookupGlobal(symb);
+	}
+
+	bind(symb, val) {
+		return new Env(new Cons(new Cons(symb, val), this._env));
+	}
+
+	static lookupGlobal(symb) {
 		let v = globals[symb];
 		if (v) {
 			return v;
 		}
 		throw new Error("Unknown symbol " + symb);
-	}
-
-	bind(symb, val) {
-		return new Env(new Cons(new Cons(symb, val), this._env));
 	}
 
 	static bindGlobal(symb, val) {
@@ -142,6 +146,39 @@ function evalSexpr(env, symb, form) {
 				return r;
 			}
 			return Fn.lambda(fn);
+		case "resolve":
+			return Env.lookupGlobal(form.car());
+		case "cond":
+			let pair = form
+
+			while (pair != NIL) {
+				let testf = pair.car();
+				let exprf = pair.cdr().car();
+				if (truthy(_eval(env, testf))) {
+					return _eval(env, exprf);
+				}
+				pair = pair.cdr().cdr();
+			}
+			throw new Error("No matching clause in cond");
+		case "let":
+			let binds = form.car();
+			let letEnv = env;
+
+			while (binds != NIL) {
+				let s = binds.car();
+				let v = binds.cdr().car();
+				letEnv = letEnv.bind(s, _eval(letEnv, v));
+				binds = binds.cdr().cdr();
+			}
+
+			let body = form.cdr();
+			let b1 = body;
+			let r = NIL;
+			while (b1 != NIL) {
+				r = _eval(letEnv, b1.car())
+				b1 = body.cdr();
+			}
+			return r;
 		default: return evalApply(env, _eval(env, symb), form);
 	}
 }

@@ -46,6 +46,24 @@ describe("truth", () => {
 		assert.equal(res(env, "((fn [x] x) 1)"), "1");
 	})
 
+	it("resolve", () => {
+		assert.equal(res(env, "((resolve inc) 0)"), "1");
+	});
+
+	it("cond", () => {
+		assert.equal(res(env, "(cond true 1)"), "1");
+		assert.equal(res(env, "(cond false 1 true 2)"), "2");
+		assert.throws(() => res(env, "(cond false 1)"), Error, "No matching clause in cond");
+		// assert.equal(res(env, "(cond false 1 (= 1 (inc 0)) 2)"), "2");
+	});
+
+	it("let", () => {
+		assert.equal(res(env, "(let [a 1 b 2] (+ a b))"), "3");
+		assert.equal(res(env, "(let [a 1 b (+ a 2) c (+ a b)] c)"), "4");
+	})
+
+
+
 })
 
 // res(null, "(if true 1 2)")
