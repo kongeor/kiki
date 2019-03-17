@@ -55,11 +55,13 @@ class Env {
 
 	static bindGlobal(symb, val) {
 		globals[symb] = val;
+		return val;
 	}
 }
 
 const global_fns = {
-	"inc": (env, args) => new Num(args.car().numVal() + 1)
+	"inc": (env, args) => new Num(args.car().numVal() + 1),
+	"dec": (env, args) => new Num(args.car().numVal() - 1)
 };
 
 function resetGlobals() {
@@ -99,6 +101,17 @@ function evalSexpr(env, symb, form) {
 		case "if": 
 			let [pred, ifc, elsec] = form;
 			return truthy(_eval(env, pred)) ? _eval(env, ifc) : _eval(env, elsec);
+		case "do":
+			let result = NIL;
+			for (let f of form) {
+				result = _eval(env, f);
+			}
+			return result;
+		case "def":
+			let [b, v] = form;
+			return Env.bindGlobal(b, v);
+		case "quote":
+			return form.car()
 		default: return evalApply(env, _eval(env, symb), form);
 	}
 }

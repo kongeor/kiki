@@ -44,7 +44,7 @@ class Symb {
 		return symbol_registry.intern(str);
 	}
 
-	toStr() {
+	toString() {
 		return this.s;
 	}
 }
@@ -69,6 +69,8 @@ const F = new Bool(false);
 class Nil {
 	constructor() {}
 
+	*[Symbol.iterator]() {}
+
 	toStr() {
 		return "nil";
 	}
@@ -76,20 +78,22 @@ class Nil {
 
 const NIL = new Nil("nil");
 
+let id = 0;
+
 class Fn {
 
-	constructor(name, fn, idx) {
+	constructor(name, fn, id) {
 		this._name = name;
 		this._fn = fn;
-		this._idx = idx;
+		this._id = id;
 	}
 
 	invoke(env, args) {
 		return this._fn(env, args);
 	}
 
-	static anonymous() {
-
+	static lambda(fn) {
+		return new Fn(undefined, fn, id++);
 	}
 
 	static builtin(name, fn) {
@@ -97,6 +101,9 @@ class Fn {
 	}
 
 	toStr() {
+		if (this_id) {
+			return `<Lambda: ${this._name}>`;
+		}
 		return `<Builtin: ${this._name}>`;
 	}
 }
