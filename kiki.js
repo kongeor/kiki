@@ -11,6 +11,9 @@ function read(text) {
 	let parser = new nearley.Parser(kikiGrammar);
 	parser.feed(text);
 	let form = parser.results[0][0][0];
+	if (form instanceof Array) {
+		return form[0];
+	}
 	return form;
 }
 
@@ -65,11 +68,43 @@ class Env {
 }
 
 const global_fns = {
-	"inc": (env, args) => new Num(args.car().numVal() + 1),
-	"dec": (env, args) => new Num(args.car().numVal() - 1),
+	"println": (env, args) => null,
 	"+": (env, args) => new Num(args.car().numVal() + args.cdr().car().numVal()),
 	"*": (env, args) => new Num(args.car().numVal() * args.cdr().car().numVal()),
-	"=": (env, args) => new Bool(args.car().eq(args.cdr().car()))
+	"-": (env, args) => null,
+	"/": (env, args) => null,
+	"<": (env, args) => null,
+	">": (env, args) => null,
+	"<=": (env, args) => null,
+	">=": (env, args) => null,
+	"=": (env, args) => new Bool(args.car().eq(args.cdr().car())),
+	"inc": (env, args) => new Num(args.car().numVal() + 1),
+	"dec": (env, args) => new Num(args.car().numVal() - 1),
+	"car": (env, args) => args.car().car(),
+	"cdr": (env, args) => args.car().cdr(),
+	"cons": (env, args) => {
+		let car = args.car();
+		let cdr = NIL;
+		if (args.cdr() != NIL) {
+			cdr = args.cdr().car();
+		}
+		return new Cons(car, cdr);
+	},
+	"cons?": (env, args) => new Bool(args.car() instanceof Cons),
+	"symbol?": (env, args) => new Bool(args.car() instanceof Symb),
+	"apply": (env, args) => {
+		let f = args.car();
+		return f.invoke(env, args.cdr().car());
+	},
+	"nil?": (env, args) => new Bool(args.car() === NIL),
+	"vararg": (parentEnv, parentArgs) => 
+		Fn.lambda((env, args) => {
+			let vf = parentArgs.car();
+			return vf.invoke(env, new Cons(args));
+		}),
+	"read-file": (env, args) => null,
+	"load-file": (env, args) => null,
+	"die": (env, args) => null,
 };
 
 function resetGlobals() {

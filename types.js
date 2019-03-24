@@ -109,7 +109,7 @@ class Fn {
 	}
 
 	static lambda(fn) {
-		return new Fn(undefined, fn, id++);
+		return new Fn(undefined, fn, ++id);
 	}
 
 	static builtin(name, fn) {
@@ -131,7 +131,7 @@ class Fn {
 class Cons {
 	constructor(car, cdr) {
 		this._car = car;
-		this._cdr = cdr;
+		this._cdr = cdr || NIL;
 	}
 
 	static fromArray(arr) {

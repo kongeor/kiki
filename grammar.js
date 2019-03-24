@@ -9,7 +9,7 @@ const moo = require("moo");
 const lexer = moo.compile({
   ws:     {match: /\s+/, lineBreaks: true},
   number: /0|[1-9][0-9]*/,
-  word: /[a-z\+\=\*]+/,
+  word: /[a-z\+\=\*\-\/\?\>\<\_\!]+/,
   oparen: "(",
   cparen: ")",
   obracket: "[",

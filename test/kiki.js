@@ -20,6 +20,12 @@ describe("truth", () => {
 		k.resetGlobals();
 	});
 
+	it('one', () => {
+		assert.equal(res(env, '1'), 1);
+		assert.equal(res(env, 'inc'), '<Builtin: inc>');
+		assert.equal(res(env, '(do (def id (fn [x] x)) id)'), '<Lambda: 1>');
+	});
+
 	it("if truthy", () => {
 		assert.equal(res(null, "(if true 1 2)"), 1);
 		assert.equal(res(null, "(if false 1 2)"), 2);
@@ -72,6 +78,11 @@ describe("truth", () => {
 			assert.equal(reb(env, "(= 0 1)"), false);
 			assert.equal(reb(env, "(= (quote (1 2 3)) (quote (1 2 3)))"), true);
 			assert.equal(reb(env, "(= (quote (1 2 3)) (quote (1 2 4)))"), false);
+		})
+
+		it("vararg", () => {
+			assert.equal(res(env, "((vararg (fn [args] (car args))) 1 2)"), 1);
+			assert.equal(res(env, "((vararg (fn [args] (car (cdr args)))) 1 2)"), 2);
 		})
 	})
 
