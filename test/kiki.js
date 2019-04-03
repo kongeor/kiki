@@ -20,6 +20,12 @@ describe("truth", () => {
 		k.resetGlobals();
 	});
 
+	describe('reader', () => {
+		it('reads', () => {
+			assert.equal(k.read('1'), 1);
+		})
+	});
+
 	it('one', () => {
 		assert.equal(res(env, '1'), 1);
 		assert.equal(res(env, 'inc'), '<Builtin: inc>');
@@ -54,6 +60,7 @@ describe("truth", () => {
 
 	it("lambda", () => {
 		assert.equal(res(env, "((fn [x] x) 1)"), "1");
+		assert.equal(res(env, "((fn [x y z] (+ x (+ y z))) 1 2 3)"), "6");
 	})
 
 	it("resolve", () => {
@@ -83,6 +90,10 @@ describe("truth", () => {
 		it("vararg", () => {
 			assert.equal(res(env, "((vararg (fn [args] (car args))) 1 2)"), 1);
 			assert.equal(res(env, "((vararg (fn [args] (car (cdr args)))) 1 2)"), 2);
+		})
+
+		it.skip("read-file", () => {
+			assert.equal(res(env, "(do (load-file \"./examples/core.clj\") (map inc (cons 1)))"), 1);
 		})
 	})
 

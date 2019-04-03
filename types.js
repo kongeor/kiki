@@ -16,6 +16,24 @@ class Num {
 	}
 }
 
+class Str {
+	constructor(s) {
+		this._s = s;
+	}
+
+	strVal() {
+		return this._s
+	}
+
+	eq(other) {
+		return (other instanceof Str) && this._n == other._n;
+	}
+
+	toString() {
+		return this._s;
+	}
+}
+
 class SymbolRegistry {
 	constructor() {
 		this._registry = {};
@@ -199,6 +217,12 @@ function parseNumber(n) {
 	return new Num(parseInt(n[0].value));
 }
 
+function parseString(n) {
+	let v = n[0].value;
+	v = v.substring(1, v.length - 1);
+	return new Str(v);
+}
+
 function parseList(d) {
 	let car = d[2][0][0];
 	if (!car) {
@@ -231,5 +255,6 @@ module.exports = {
 	NIL,
 	parseSymbol,
 	parseList,
-	parseNumber
+	parseNumber,
+	parseString
 }

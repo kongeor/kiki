@@ -68,7 +68,14 @@ class Env {
 }
 
 const global_fns = {
-	"println": (env, args) => null,
+	"println": (env, args) => {
+		let s = "";
+		for (let a of args) {
+			s += a.toString() + " ";
+		}
+		console.log(s)
+		return NIL;
+	},
 	"+": (env, args) => new Num(args.car().numVal() + args.cdr().car().numVal()),
 	"*": (env, args) => new Num(args.car().numVal() * args.cdr().car().numVal()),
 	"-": (env, args) => null,
@@ -96,14 +103,23 @@ const global_fns = {
 		let f = args.car();
 		return f.invoke(env, args.cdr().car());
 	},
-	"nil?": (env, args) => new Bool(args.car() === NIL),
+	"nil?": (env, args) => {
+		return new Bool(args.car() === NIL)
+	},
 	"vararg": (parentEnv, parentArgs) => 
 		Fn.lambda((env, args) => {
 			let vf = parentArgs.car();
 			return vf.invoke(env, new Cons(args));
 		}),
-	"read-file": (env, args) => null,
-	"load-file": (env, args) => null,
+	"read-file": (env, args) => {
+		let text = require('fs').readFileSync(args.car().strVal(), "utf-8");
+		let r = read(`(do ${text})`);
+		return r;
+	},
+	"load-file": (env, args) => {
+		let form = global_fns["read-file"](env, args);
+		return _eval(env, form);
+	},
 	"die": (env, args) => null,
 };
 
@@ -167,8 +183,8 @@ function evalSexpr(env, symb, form) {
 					let symb = p.car();
 					lambdaEnv = lambdaEnv.bind(symb, a.car());
 
-					p = params.cdr();
-					a = args.cdr();
+					p = p.cdr();
+					a = a.cdr();
 				}
 
 				let body = form.cdr();
