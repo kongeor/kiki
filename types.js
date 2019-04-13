@@ -30,7 +30,7 @@ class Str {
 	}
 
 	toString() {
-		return this._s;
+		return '"' + this._s + '"';
 	}
 }
 
@@ -189,6 +189,14 @@ class Cons {
 		return false;
 	}
 
+	reverse() {
+		let cons = NIL;
+		for (let e of this) {
+			cons = new Cons(e, cons);
+		}
+		return cons;
+	}
+
 	_toStr() {
 		if (this._cdr instanceof Cons) {
 			return this._car.toString() + " " + this._cdr._toStr();
@@ -251,6 +259,7 @@ module.exports = {
 	Symb,
 	Cons,
 	Bool,
+	Str,
 	Fn,
 	NIL,
 	parseSymbol,

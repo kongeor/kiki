@@ -1,5 +1,8 @@
 const readline = require('readline');
 
+const { NIL } = require("./types");
+const { KikiReader } = require("./reader");
+
 const k = require("./kiki");
 
 const rl = readline.createInterface({
@@ -12,10 +15,21 @@ rl.prompt();
 
 const env = new k.Env();
 
+function readEvalPrint(text) {
+  let reader = new KikiReader(text);
+  let cons = reader.read();
+  let result = NIL;
+  while (cons != NIL) {
+    let car = cons.car();
+    result = k._eval(env, car);
+    cons = cons.cdr();
+  }
+  console.log(result.toString());
+}
+
 rl.on('line', function (text) {
   try {
-    let r = k._eval(env, k.read(text)).toString()
-    console.log(r);
+    readEvalPrint(text);
   } catch (e) {
     console.error(e);
   }
