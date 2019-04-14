@@ -22,9 +22,9 @@ function readEvalPrint(text) {
   while (cons != NIL) {
     let car = cons.car();
     result = k._eval(env, car);
+    console.log(result.toString());
     cons = cons.cdr();
   }
-  console.log(result.toString());
 }
 
 rl.on('line', function (text) {

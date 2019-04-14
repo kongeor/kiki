@@ -87,6 +87,12 @@ class KikiReader {
             return new Cons(new Symb("quote"), new Cons(this._readExpr()));
         }
 
+        if (';' == char) {
+            while ('\n' != char) {
+                char = this._reader.read();
+            }
+        }
+
     }
 
     _readNumber() {

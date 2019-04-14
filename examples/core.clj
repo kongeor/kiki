@@ -1,5 +1,7 @@
+; a map func
 (def map
-  (fn [f coll]
+  ; a map func
+  (fn [f coll] ; a map func
     (do
         (println "*" coll)
     (if (nil? coll)

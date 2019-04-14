@@ -1,6 +1,8 @@
 const nearley = require("nearley");
 const grammar = require("./grammar.js");
 
+const { KikiReader } = require("./reader");
+
 const { Cons, Bool, Fn, Num, Symb, NIL } = require("./types");
 
 // Create a Parser object from our grammar.
@@ -8,13 +10,16 @@ const { Cons, Bool, Fn, Num, Symb, NIL } = require("./types");
 const kikiGrammar = nearley.Grammar.fromCompiled(grammar);
 
 function read(text) {
-	let parser = new nearley.Parser(kikiGrammar);
-	parser.feed(text);
-	let form = parser.results[0][0][0];
-	if (form instanceof Array) {
-		return form[0];
-	}
-	return form;
+	// let parser = new nearley.Parser(kikiGrammar);
+	// parser.feed(text);
+	// let form = parser.results[0][0][0];
+	// if (form instanceof Array) {
+	// 	return form[0];
+	// }
+	// return form;
+	let reader = new KikiReader(text);
+	let cons = reader.read();
+	return cons.car();
 }
 
 // Parse something!

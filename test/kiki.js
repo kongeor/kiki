@@ -1,14 +1,19 @@
 const k = require("../kiki");
 var assert = require('assert');
+const { KikiReader } = require("../reader");
 
 
 // read eval to string
 function res(env, text) {
-	return (k._eval(env, k.read(text)).toString());
+	let reader = new KikiReader(text);
+	let cons = reader.read();
+	return (k._eval(env, cons.car()).toString());
 }
 
 function reb(env, text) {
-	return (k._eval(env, k.read(text)).boolVal());
+	let reader = new KikiReader(text);
+	let cons = reader.read();
+	return (k._eval(env, cons.car()).boolVal());
 }
 
 describe("truth", () => {
@@ -92,13 +97,13 @@ describe("truth", () => {
 			assert.equal(res(env, "((vararg (fn [args] (car (cdr args)))) 1 2)"), 2);
 		})
 
-		it.skip("read-file", () => {
-			assert.equal(res(env, "(do (load-file \"./examples/core.clj\") (map inc (cons 1)))"), 1);
+		it.only("read-file", () => {
+			assert.equal(res(env, "(do (load-file \"./examples/core.clj\") (map inc (cons 1)))"), "( 2 )");
 		})
 	})
 
 	describe("programs", () => {
-		it.skip("ignore whitespace", () => {
+		it("ignore whitespace", () => {
 			assert.equal(res(env, "  (+ 1 2)   "), 3);
 		})
 		it("factorial multiline", () => {
