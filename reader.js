@@ -93,6 +93,7 @@ class KikiReader {
             }
         }
 
+        throw "Unrecognized character: " + char;
     }
 
     _readNumber() {

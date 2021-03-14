@@ -38,4 +38,6 @@ describe("reader", () => {
 		assert.equal(read("'a"), '( ( quote a ) )');
 	})
 
+	// TODO comments
+
 });

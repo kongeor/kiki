@@ -97,7 +97,7 @@ describe("truth", () => {
 			assert.equal(res(env, "((vararg (fn [args] (car (cdr args)))) 1 2)"), 2);
 		})
 
-		it.only("read-file", () => {
+		it("load-file", () => {
 			assert.equal(res(env, "(do (load-file \"./examples/core.clj\") (map inc (cons 1)))"), "( 2 )");
 		})
 	})
